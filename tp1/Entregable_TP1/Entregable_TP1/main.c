@@ -1,16 +1,16 @@
-/* Inclusión de bibliotecas de código */
+/* Inclusiï¿½n de bibliotecas de cï¿½digo */
 #include <avr/io.h>      // Registros del microcontrolador
 #define F_CPU 16000000UL // Defino la frecuencia de oscilador en 8MHz
 #include <stdint.h>
 #include <util/delay.h> // Retardos por software
 
-#define DELAY 100 // Definido en ms
+#define DELAY 250 // Definido en ms
 
 void seq_1(uint8_t first);
 void seq_2(uint8_t first);
 void seq_3(uint8_t first);
 
-/* Función main */
+/* Funciï¿½n main */
 int main(void) {
   /* Setup */
   DDRB &= (1 << PORTB3 |
@@ -59,7 +59,7 @@ int main(void) {
 
     first = 0;
   }
-  /* Punto de finalización del programa (NO se debe llegar a este lugar) */
+  /* Punto de finalizaciï¿½n del programa (NO se debe llegar a este lugar) */
   return 0;
 }
 
@@ -69,4 +69,18 @@ void seq_2(uint8_t first) {
   PORTD = (first || PORTD & (1 << PORTD7)) ? (0b00000001) : (PORTD << 1);
 }
 
-void seq_3(uint8_t first) { PORTD = first ? 0b10000000 : ~PORTD & 0b10000001; }
+void seq_3(uint8_t first) {
+  static uint8_t left = 0;
+  left = PORTD == 0b1 ? 1 : PORTD == 0b10000000 ? 0 : left;
+  if(first) {
+    PORTD = 0b00000001;
+  }
+  else {
+    if(left) {
+      PORTD = PORTD << 1;
+    }
+    else {
+      PORTD = PORTD >> 1;
+    }
+  }
+}
