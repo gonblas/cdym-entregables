@@ -65,7 +65,8 @@ int main(void) {
 
 void seq_1(uint8_t first) { PORTD = first ? 0b01010101 : ~PORTD; }
 
-void seq_2(uint8_t first) { PORTD = (first || PORTD & (1 << PORTD7) ? (0b00000001) : (PORTD << 1);
+void seq_2(uint8_t first) {
+  PORTD = (first || PORTD & (1 << PORTD7)) ? (0b00000001) : (PORTD << 1);
 }
 
 void seq_3(uint8_t first) { PORTD = first ? 0b10000000 : ~PORTD & 0b10000001; }
