@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <util/delay.h> // Retardos por software
 
-#define DELAY 250 // Definido en ms
+#define DELAY 100       // Definido en ms
 
 void seq_1(uint8_t first);
 void seq_2(uint8_t first);
