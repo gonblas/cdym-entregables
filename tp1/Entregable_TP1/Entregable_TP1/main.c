@@ -27,7 +27,7 @@ int main(void) {
 
   /* Loop */
   while (1) {
-    if (pushed_c0 && ~(PINC & (1 << PINC0))) {
+    if (pushed_c0 && (PINC & (1 << PINC0))) {
       pushed_c0 = 0;
     }
 
