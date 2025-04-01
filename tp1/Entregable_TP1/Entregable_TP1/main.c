@@ -55,7 +55,7 @@ int main(void) {
       break;
     }
 
-    //_delay_ms(DELAY);
+    _delay_ms(DELAY);
 
     first = 0;
   }
