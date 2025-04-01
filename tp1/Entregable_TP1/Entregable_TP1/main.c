@@ -13,7 +13,7 @@ void seq_3(uint8_t first);
 /* Funci�n main */
 int main(void) {
   /* Setup */
-  DDRB &= (1 << PORTB3 |
+  DDRB |= (1 << PORTB3 |
            1 << PORTB4); // Configuro bit3 y bit4 del puerto B como salida
   DDRC &= ~(1 << PORTC0 |
             1 << PORTC1); // Configuro bit0 y bit1 puerto C como entrada
@@ -55,7 +55,7 @@ int main(void) {
       break;
     }
 
-    _delay_ms(DELAY);
+    //_delay_ms(DELAY);
 
     first = 0;
   }
