@@ -25,7 +25,7 @@ int main(void) {
 
   /* Loop */
   while (1) {
-    /* Si el botón de PORTC0 está presionado y  */
+    /* Si el botón de PORTC0 deja de ser presionado */
     if (pushed_c0 && (PINC & (1 << PINC0))) {
       pushed_c0 = 0;
     }
