@@ -1,0 +1,32 @@
+{
+  "configurations": [
+    {
+      "name": "AVR",
+
+      //"intelliSenseMode": "${default}",
+      "cStandard": "${default}",
+      "cppStandard": "${default}",
+        "intelliSenseMode": "windows-gcc-x64",
+      "includePath": [
+        "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avr8-gnu-toolchain\\include",
+        "${workspaceFolder}/**"
+      ],
+      "compilerPath": "C:\\Program Files (x86)\\Atmel\\Studio\\7.0\\toolchain\\avr8\\avr8-gnu-toolchain\\bin\\avr-gcc.exe",
+      "compilerArgs": [
+        "-g",
+        "-Os",
+        "-Wall",
+        "-Wextra",
+        "-fpermissive",
+        "-fno-exceptions",
+        "-fno-threadsafe-statics",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-pipe",
+        "-mmcu=atmega328p",
+        "-DF_CPU=16000000UL"
+      ]
+    }
+  ],
+  "version": 4
+}
