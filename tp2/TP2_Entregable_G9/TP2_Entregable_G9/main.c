@@ -17,29 +17,29 @@
 
 
 volatile uint8_t tick = 0, t = 0;
+uint8_t anashe;
 
 int main(void)
 {
     timer_init();
     keypad_init();
-    LCDinit();
-    uint8_t key;
-
-    while (1) 
+    MEF_init();
+    uint8_t key = '*';
+    while (1)
     {
         if (!KEYPAD_Scan(&key)) {
             key = 0xFF;
         }
-        _delay_ms(100);
         MEF_update(&t, key);
+        _delay_ms(100);
     }
 }
 
-ISR(TIMER0_COMPB_vect){
+ISR(TIMER0_OVF_vect) {
+    TCNT0 = 100; // Reinicia el timer para 10 ms
     tick++;
-    if(tick == 100) {
+    if (tick == 100) { // Cada 100 ticks de 10 ms = 1 segundo
         t++;
         tick = 0;
     }
-    TCNT0 = 99;
 }

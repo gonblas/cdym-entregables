@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "lcd.h"
 #include "lcd_out.h"
 
 #define WORD_COUNT (sizeof(dictionary) / sizeof(dictionary[0]))
-#define GET_RANDOM_INDEX(min, max) (rand() + min + rand() % (max - min + 1))
+#define GET_RANDOM_INDEX(min, max) ((rand() % ((max) - (min) + 1)) + (min))
 #define SHOW_PASSWORD_KEY '*'
 #define CHAR_END_KEY '#'
 #define CHAR_TO_INT(c) c - '0'
@@ -19,50 +20,56 @@ typedef enum
   VICTORY,
   LOSE
 } state_t;
-char *dictionary[] = {
+uint8_t *dictionary[] = {
     "Arbol", "Boton", "CDyMC", "ClavE", "Facil", "Gafas", "Hojas", "LiBro",
     "Lanza", "Nieve", "PeRro", "PecES", "PiAno", "PrYKe", "RUEDa", "SERIE",
     "SalUd", "Salud", "Silla", "Tecla", "Valor", "Verde", "YnHRz", "hARdD", "silla"};
 
 state_t state;
-char *word, guess[6];
+uint8_t *word, guess[6];
 uint8_t cur_char_index, current_char, errors, time_to_victory;
+uint8_t random_index, first;
 
 void MEF_init()
 {
   LCD_Init();
   state = INIT;
   srand(time(NULL));
-  PRINT_word("Bienv");
+  LCDclr();
 }
 
-void MEF_update(uint8_t t, uint8_t key)
+void MEF_update(volatile uint8_t *t, uint8_t key)
 {
   switch (state)
   {
   case INIT:
+    PRINT_word("Bienvenido", 0);
     if (key == SHOW_PASSWORD_KEY)
     {
       state = SHOW_PASSWORD;
-      *guess = "*****\0";
-      t = 0;
+      strcpy(guess, "*****");
       errors = 0;
       cur_char_index = 0;
       word = NULL;
+      first = 1;
     }
     break;
   case SHOW_PASSWORD:
     if (word == NULL)
     {
-      word = dictionary[GET_RANDOM_INDEX(0, WORD_COUNT)];
-      PRINT_word(word);
+      random_index = GET_RANDOM_INDEX(0, WORD_COUNT);
+      word = dictionary[random_index];
+      PRINT_word(word, 1);
+      *t = 0;
     }
-    if (t == 2)
+    if (*t == 0x02)
     {
       state = WAIT_INPUT;
       LCDclr();
-      t = 0;
       current_char = 0;
+      *t = 0;
+      PRINT_guess(guess);
+      PRINT_error(errors);
     }
     break;
   case WAIT_INPUT:
@@ -70,14 +77,15 @@ void MEF_update(uint8_t t, uint8_t key)
     {
       if (current_char == word[cur_char_index])
       {
-        strcpy(guess[cur_char_index], current_char);
+        guess[cur_char_index] = current_char;
+        current_char = 0;
         PRINT_guess(guess);
         cur_char_index++;
         if (cur_char_index == 5)
         {
           state = VICTORY;
-          time_to_victory = t;
-          t = 0;
+          time_to_victory = *t;
+          *t = 0;
         }
       }
       else
@@ -87,7 +95,7 @@ void MEF_update(uint8_t t, uint8_t key)
         if (errors == 3)
         {
           state = LOSE;
-          t = 0;
+          *t = 0;
         }
       }
     }
@@ -97,17 +105,27 @@ void MEF_update(uint8_t t, uint8_t key)
     }
     break;
   case VICTORY:
-    PRINT_victory(time_to_victory);
-    if (t == 5)
+    if (first == 1)
+    {
+      PRINT_victory(time_to_victory);
+      first = 0;
+    }
+    if (*t == 5)
     {
       state = INIT;
+      LCDclr();
     }
     break;
   case LOSE:
-    PRINT_lose();
-    if (t == 5)
+  if (first == 1)
+    {
+      PRINT_lose();
+      first = 0;
+    }
+    if (*t == 5)
     {
       state = INIT;
+      LCDclr();
     }
     break;
   }
