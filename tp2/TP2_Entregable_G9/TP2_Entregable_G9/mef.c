@@ -1,5 +1,6 @@
 #include "lcd.h"
 #include "lcd_out.h"
+#include "keypad.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,14 @@
 #define CHAR_TO_INT(c) c - '0'
 #define UPDATE_CHAR(cchar, key) (cchar = cchar * 10 + CHAR_TO_INT(key))
 
-typedef enum { INIT, SHOW_PASSWORD, WAIT_INPUT, VICTORY, LOSE } state_t;
+typedef enum
+{
+  INIT,
+  SHOW_PASSWORD,
+  WAIT_INPUT,
+  VICTORY,
+  LOSE
+} state_t;
 uint8_t *dictionary[] = {"Arbol", "Boton", "CDyMC", "ClavE", "Facil",
                          "Gafas", "Hojas", "LiBro", "Lanza", "Nieve",
                          "PeRro", "PecES", "PiAno", "PrYKe", "RUEDa",
@@ -24,37 +32,53 @@ state_t state;
 uint8_t *word, guess[6];
 uint8_t cur_char_index, current_char, errors, time_to_victory;
 uint8_t random_index, first;
+volatile uint8_t temporization_flag = 0;
+volatile uint8_t t = 0;
 
-void MEF_init() {
+void MEF_init()
+{
   state = INIT;
   srand(time(NULL));
   LCDclr();
 }
 
-void MEF_update(volatile uint8_t *t, uint8_t key) {
-      
-  switch (state) {
+void MEF_update(volatile uint8_t *t, uint8_t key)
+{
+  if(temporization_flag){
+    return;
+  }
+
+  if (!KEYPAD_Scan(&key))
+  {
+    key = 0xFF;
+  }
+  
+  switch (state)
+  {
   case INIT:
     PRINT_word("Bienvenido", 0);
-    if (key == SHOW_PASSWORD_KEY) {
+    if (key == SHOW_PASSWORD_KEY)
+    {
       state = SHOW_PASSWORD;
       strcpy(guess, "*****");
       errors = 0;
       cur_char_index = 0;
       word = NULL;
       first = 1;
-    
-	  //_delay_us(5);
+
+      _delay_us(5);
     }
     break;
   case SHOW_PASSWORD:
-    if (word == NULL) {
+    if (word == NULL)
+    {
       random_index = GET_RANDOM_INDEX(0, WORD_COUNT);
       word = dictionary[random_index];
       PRINT_word(word, 1);
       *t = 0;
     }
-    if (*t == 0x02) {
+    if (*t == 0x02)
+    {
       state = WAIT_INPUT;
       LCDclr();
       current_char = 0;
@@ -64,45 +88,57 @@ void MEF_update(volatile uint8_t *t, uint8_t key) {
     }
     break;
   case WAIT_INPUT:
-    if (key == CHAR_END_KEY) {
-      if (current_char == word[cur_char_index]) {
+    if (key == CHAR_END_KEY)
+    {
+      if (current_char == word[cur_char_index])
+      {
         guess[cur_char_index] = current_char;
         current_char = 0;
         PRINT_guess(guess);
         cur_char_index++;
-        if (cur_char_index == 5) {
+        if (cur_char_index == 5)
+        {
           state = VICTORY;
           time_to_victory = *t;
           *t = 0;
         }
-      } else {
+      }
+      else
+      {
         errors++;
         PRINT_error(errors);
-        if (errors == 3) {
+        if (errors == 3)
+        {
           state = LOSE;
           *t = 0;
         }
       }
-    } else if (key >= '0' && key <= '9') {
+    }
+    else if (key >= '0' && key <= '9')
+    {
       UPDATE_CHAR(current_char, key);
     }
     break;
   case VICTORY:
-    if (first == 1) {
+    if (first == 1)
+    {
       PRINT_victory(time_to_victory);
       first = 0;
     }
-    if (*t == 5) {
+    if (*t == 5)
+    {
       state = INIT;
       LCDclr();
     }
     break;
   case LOSE:
-    if (first == 1) {
+    if (first == 1)
+    {
       PRINT_lose();
       first = 0;
     }
-    if (*t == 5) {
+    if (*t == 5)
+    {
       state = INIT;
       LCDclr();
     }
