@@ -3,5 +3,5 @@
 #include <stdint.h>
 
 void keypad_init(void);
-uint8_t KEYPAD_Scan(uint8_t *pkey);
+uint8_t KEYPAD_Scan(volatile uint8_t *pkey);
 #endif
