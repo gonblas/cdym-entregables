@@ -26,13 +26,13 @@ uint8_t cur_char_index, current_char, errors, time_to_victory;
 uint8_t random_index, first;
 
 void MEF_init() {
-  LCD_Init();
   state = INIT;
   srand(time(NULL));
   LCDclr();
 }
 
 void MEF_update(volatile uint8_t *t, uint8_t key) {
+      
   switch (state) {
   case INIT:
     PRINT_word("Bienvenido", 0);
@@ -43,6 +43,8 @@ void MEF_update(volatile uint8_t *t, uint8_t key) {
       cur_char_index = 0;
       word = NULL;
       first = 1;
+    
+	  //_delay_us(5);
     }
     break;
   case SHOW_PASSWORD:
@@ -83,7 +85,6 @@ void MEF_update(volatile uint8_t *t, uint8_t key) {
       }
     } else if (key >= '0' && key <= '9') {
       UPDATE_CHAR(current_char, key);
-      PRINT_huh(current_char, key);
     }
     break;
   case VICTORY:

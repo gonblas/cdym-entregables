@@ -17,7 +17,7 @@ void PRINT_word(uint8_t *word, uint8_t clr) {
 }
 
 void PRINT_huh(uint8_t number, uint8_t key) {
-  LCDGotoXY(8, 0);
+  LCDGotoXY(8, 1);
   char message[16];
   int len = sprintf(message, "%3.d | %c", number, key);
   LCDstring((uint8_t *)message, len);
