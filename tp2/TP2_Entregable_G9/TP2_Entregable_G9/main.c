@@ -22,15 +22,18 @@ int main(void) {
   keypad_init();
   MEF_init();
   while (1) {
-    KEYPAD_Scan(&key);
-    _delay_ms(100);
+    if (!KEYPAD_Scan(&key)) {
+      key = 0xFF;
+    }
+
+    MEF_update(&t, key);
+    _delay_ms(10);
   }
 }
 
 ISR(TIMER0_OVF_vect) {
   TCNT0 = 100; // Reinicia el timer para 10 ms
   tick++;
-  MEF_update(&t, key);
   if (tick == 100) { // Cada 100 ticks de 10 ms = 1 segundo
     t++;
     tick = 0;

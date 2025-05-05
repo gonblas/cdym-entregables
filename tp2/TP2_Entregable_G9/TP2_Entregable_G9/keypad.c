@@ -1,5 +1,7 @@
+#include "keypad.h"
 #include <avr/io.h>
-
+#define F_CPU 16000000UL
+#include <util/delay.h>
 const char KeyMap[16] = {'1', '2', '3', 'A', '4', '5', '6', 'B',
                          '7', '8', '9', 'C', '*', '0', '#', 'D'};
 
@@ -27,6 +29,7 @@ uint8_t KeypadUpdate(void) {
       break;
     }
 
+    _delay_us(5);
     // Escaneo las columnas
     if (!(PIND & (1 << PD3)))
       return (fila * 4 + 0); // Columna 0
@@ -58,7 +61,6 @@ uint8_t KeypadUpdate(void) {
 }
 
 uint8_t KEYPAD_Scan(volatile uint8_t *pkey) {
-  *pkey = 0xFF;
   static uint8_t Old_key = 0xFF, Last_valid_key = 0xFF;
   uint8_t Key;
 
