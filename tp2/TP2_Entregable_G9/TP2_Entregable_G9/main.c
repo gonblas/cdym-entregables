@@ -14,19 +14,16 @@
 #include "keypad.h"
 #include <util/delay.h>
 
-uint8_t key = 0xFF;
 int main(void) {
   timer_init();
   LCD_Init();
   _delay_ms(100);
   
-  keypad_init();
+  KEYPAD_init();
   MEF_init();
   
   while (1) {
-
-
-    MEF_update(&t, key);
+    MEF_update();
   }
 }
 
