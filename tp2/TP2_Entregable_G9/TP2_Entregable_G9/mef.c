@@ -29,7 +29,7 @@
  *
  * @param t Puntero a la variable de temporización.
  */
-void miss(uint8_t t);
+void miss();
 
 #define WORD_COUNT (sizeof(dictionary) / sizeof(dictionary[0]))
 #define GET_RANDOM_INDEX(min, max) ((rand() % ((max) - (min) + 1)) + (min))
@@ -119,10 +119,10 @@ void MEF_update() {
           t = 0;
         }
       } else
-        miss(t);
+        miss();
     } else if (key >= '0' && key <= '9') {
       if (UPDATE_CHAR(current_char, key) > 255)
-        miss(t);
+        miss();
       else {
         current_char = UPDATE_CHAR(current_char, key);
         PRINT_ascii_num(current_char);
@@ -152,7 +152,7 @@ void MEF_update() {
   }
 }
 
-void miss(uint8_t t) {
+void miss() {
   errors++;
   PRINT_error(errors);
   if (errors == MAX_ERRORS) {
