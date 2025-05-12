@@ -15,7 +15,6 @@
 #include "keypad.h"
 #include "lcd.h"
 #include "lcd_out.h"
-#include <cstdint>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
