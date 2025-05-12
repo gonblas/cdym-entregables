@@ -61,7 +61,7 @@ void MEF_init() {
 }
 
 void MEF_update() {
-  if (temporization_flag)
+  if (!temporization_flag)
     return;
 
   temporization_flag = 0;
