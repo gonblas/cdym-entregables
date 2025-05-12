@@ -92,7 +92,7 @@ void MEF_update() {
     break;
   case SHOW_PASSWORD:
     if (word == NULL) {
-      random_index = GET_RANDOM_INDEX(0, WORD_COUNT);
+      random_index = GET_RANDOM_INDEX(0, WORD_COUNT - 1);
       word = dictionary[random_index];
       PRINT_word(word, 1, 0);
       t = 0;
