@@ -15,6 +15,7 @@
 #include "keypad.h"
 #include "lcd.h"
 #include "lcd_out.h"
+#include <cstdint>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,9 @@ state_t state;
 uint8_t *word, guess[6];
 uint8_t key = 0xFF, cur_char_index, current_char, errors, time_to_victory;
 uint8_t random_index, first;
+uint8_t set_seed = 1;
 volatile uint8_t temporization_flag = 0;
+volatile uint8_t tick = 0;
 volatile uint8_t t = 0;
 
 void MEF_init() {
@@ -73,6 +76,11 @@ void MEF_update() {
     PRINT_word("Bienvenido", 0, 0);
     PRINT_word("Presione *", 0, 1);
     if (key == SHOW_PASSWORD_KEY) {
+      if (set_seed) {
+        srand(tick);
+        set_seed = 0;
+      }
+
       state = SHOW_PASSWORD;
       strcpy(guess, "*****");
       errors = 0;

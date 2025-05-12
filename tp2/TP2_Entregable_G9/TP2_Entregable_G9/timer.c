@@ -17,8 +17,6 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-uint8_t tick = 0;
-
 void timer_init() {
   TCCR0A = 0x00;                      // Modo normal
   TCCR0B = (1 << CS02) | (1 << CS00); // Prescaler = 1024
