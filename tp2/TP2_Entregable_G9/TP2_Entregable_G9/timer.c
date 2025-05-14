@@ -1,17 +1,3 @@
-/**
- * @file timer.c
- * @brief Implementación de un temporizador utilizando el Timer0 del
- * microcontrolador AVR.
- *
- * Este archivo contiene las funciones necesarias para inicializar y manejar un
- * temporizador que genera interrupciones cada 10 ms. Además, se utiliza una
- * variable de bandera para realizar tareas temporizadas y un contador para
- * medir intervalos de tiempo más largos.
- *
- * @author Grupo 9
- * @date Fecha de entrega
- */
-
 #include "timer.h"
 #include "mef.h"
 #include <avr/interrupt.h>

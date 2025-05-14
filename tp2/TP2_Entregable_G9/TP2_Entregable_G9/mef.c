@@ -1,17 +1,3 @@
-/**
- * @file mef.c
- * @brief Implementación de una Máquina de Estados Finitos (MEF) para un juego
- * de adivinanza de palabras.
- *
- * Este archivo contiene la lógica de una MEF que permite al usuario adivinar
- * palabras seleccionadas aleatoriamente de un diccionario. El juego incluye
- * estados para inicialización, mostrar la palabra, esperar la entrada del
- * usuario, manejar la victoria y manejar la derrota.
- *
- * @author Grupo 9
- * @date 2023
- */
-
 #include "keypad.h"
 #include "lcd.h"
 #include "lcd_out.h"
