@@ -103,7 +103,7 @@ void compare_command(uint8_t *command_buffer)
 
         SerialPort_Send_String("Fecha y hora actualizadas\r\n");
 
-        // RTC_SetDateTime(date);
+        RTC_SetDateTime(date);
         WAITING_TIME = 0;
         return;
     }
@@ -177,5 +177,7 @@ int main(void)
     {
         if (command_ready)
             compare_command(command_buffer);
+        RTC_GetDateTime(&date);
+        _delay_ms(100); // Esperar 1 segundo
     }
 }
