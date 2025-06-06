@@ -177,7 +177,13 @@ int main(void)
     {
         if (command_ready)
             compare_command(command_buffer);
+
         RTC_GetDateTime(&date);
-        _delay_ms(100); // Esperar 1 segundo
+        if (ON_FLAG){
+            // Si está ON, enviá la fecha y hora cada segundo
+            SerialPort_Send_String(format_date(date));
+            SerialPort_Send_String("\r\n");
+        }
+        _delay_ms(1000); // Esperar 1 segundo
     }
 }
