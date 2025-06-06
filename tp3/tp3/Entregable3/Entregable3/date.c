@@ -86,3 +86,86 @@ void updateDate(date_t *date)
     if (++date->year <= 99) return;
     date->year = 0;
 }
+
+
+int is_valid_date_format(const char *str)
+{
+    // Verifica longitud
+    if (!str || !(str[8] == ' ' || str[8] == '\r'))
+        return 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (i == 2 || i == 5)
+        {
+            if (str[i] != '/')
+                return 0;
+        }
+        else
+        {
+            if (!isdigit(str[i]))
+                return 0;
+        }
+    }
+
+    int d = atoi((char[]){str[0], str[1], '\0'});
+    int m = atoi((char[]){str[3], str[4], '\0'});
+    int y = atoi((char[]){str[6], str[7], '\0'});
+
+    if (m < 1 || m > 12)
+        return 0;
+
+    uint8_t max_day = days_in_month(m, y);
+    if (d < 1 || d > max_day)
+        return 0;
+
+    return 1;
+}
+
+int is_valid_time_format(const char *str)
+{
+    if (!str || str[8] != '\0')
+        return 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (i == 2 || i == 5)
+        {
+            if (str[i] != ':')
+                return 0;
+        }
+        else
+        {
+            if (!isdigit(str[i]))
+                return 0;
+        }
+    }
+
+    int h = atoi((char[]){str[0], str[1], '\0'});
+    int m = atoi((char[]){str[3], str[4], '\0'});
+    int s = atoi((char[]){str[6], str[7], '\0'});
+
+    if (h < 0 || h > 23)
+        return 0;
+    if (m < 0 || m > 59)
+        return 0;
+    if (s < 0 || s > 59)
+        return 0;
+
+    return 1;
+}
+
+
+uint8_t* format_time(date_t date) {
+    static uint8_t formatted_time[9]; // "HH:MM:SS\0"
+    snprintf((char *)formatted_time, sizeof(formatted_time), "%02u:%02u:%02u",
+             date.hour, date.minute, date.second);
+    return formatted_time;
+}
+
+uint8_t* format_date(date_t date) {
+    static uint8_t formatted_date[20]; // "DD/MM/YY HH:MM:SS\0"
+    snprintf((char *)formatted_date, sizeof(formatted_date), "%02u/%02u/%02u %s",
+             date.day, date.month, date.year, format_time(date));
+    return formatted_date;
+}

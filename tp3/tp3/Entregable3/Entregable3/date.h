@@ -28,7 +28,7 @@ uint8_t days_in_month(uint8_t month, uint8_t year);
 
 void updateDate(date_t *date);
 
-
-
+int is_valid_date_format(const char *str);
+int is_valid_time_format(const char *str);
 
 #endif

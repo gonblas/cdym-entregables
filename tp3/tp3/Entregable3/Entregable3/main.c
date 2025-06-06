@@ -17,6 +17,9 @@
 #define BAUD_RATE_CONFIG 103
 #include "date.h"
 
+
+#define CMP_STR(str1, str2) strcmp((char *)str1, (char *)str2) == 0
+
 // ====================
 // BUFFER
 // ====================
@@ -29,7 +32,7 @@ uint8_t ON_FLAG = 0;
 uint8_t WAITING_TIME = 0;
 uint8_t WAITING_ALARM = 0;
 
-date_t date;
+date_t date, alarm;
 
 void usart_init()
 {
@@ -68,72 +71,7 @@ void print_welcome()
 #include <stdlib.h> // atoi
 #include <ctype.h>  // isdigit
 
-int is_valid_date_format(const char *str)
-{
-    // Verifica longitud
-    if (!str || !(str[8] == ' ' || str[8] == '\r'))
-        return 0;
 
-    for (int i = 0; i < 8; i++)
-    {
-        if (i == 2 || i == 5)
-        {
-            if (str[i] != '/')
-                return 0;
-        }
-        else
-        {
-            if (!isdigit(str[i]))
-                return 0;
-        }
-    }
-
-    int d = atoi((char[]){str[0], str[1], '\0'});
-    int m = atoi((char[]){str[3], str[4], '\0'});
-    int y = atoi((char[]){str[6], str[7], '\0'});
-
-    if (m < 1 || m > 12)
-        return 0;
-
-    uint8_t max_day = days_in_month(m, y);
-    if (d < 1 || d > max_day)
-        return 0;
-
-    return 1;
-}
-
-int is_valid_time_format(const char *str)
-{
-    if (!str || str[8] != '\0')
-        return 0;
-
-    for (int i = 0; i < 8; i++)
-    {
-        if (i == 2 || i == 5)
-        {
-            if (str[i] != ':')
-                return 0;
-        }
-        else
-        {
-            if (!isdigit(str[i]))
-                return 0;
-        }
-    }
-
-    int h = atoi((char[]){str[0], str[1], '\0'});
-    int m = atoi((char[]){str[3], str[4], '\0'});
-    int s = atoi((char[]){str[6], str[7], '\0'});
-
-    if (h < 0 || h > 23)
-        return 0;
-    if (m < 0 || m > 59)
-        return 0;
-    if (s < 0 || s > 59)
-        return 0;
-
-    return 1;
-}
 
 void compare_command(uint8_t *command_buffer)
 {
@@ -153,7 +91,7 @@ void compare_command(uint8_t *command_buffer)
 
         if (!is_valid_date_format(date_str) || !is_valid_time_format(time_str))
         {
-            SerialPort_Send_String("Formato de fecha u hora inválido. Use DD/MM/YY HH:MM:SS\r\n");
+            SerialPort_Send_String("Formato de fecha u hora invalido. Use DD/MM/YY HH:MM:SS\r\n");
             return;
         }
 
@@ -173,47 +111,52 @@ void compare_command(uint8_t *command_buffer)
     if (WAITING_ALARM)
     {
         // Si está esperando la alarma, recibí los datos
-        if (cmd_index == 5) // Formato esperado: HH:MM
+        if (!is_valid_time_format(command_buffer)) 
         {
-            char hour_str[3] = {command_buffer[0], command_buffer[1], '\0'};
-            char minute_str[3] = {command_buffer[3], command_buffer[4], '\0'};
-
-            date.hour = atoi(hour_str);
-            date.minute = atoi(minute_str);
-
-            SerialPort_Send_String("Alarma actualizada\r\n");
-            WAITING_ALARM = 0; // Deja de esperar
+            SerialPort_Send_String("Formato de hora invalido. Use HH:MM:SS\r\n");
+            return;
         }
+
+        // Parsear y guardar
+        alarm.day = date.day;
+        alarm.month = date.month;
+        alarm.year = date.year;
+        alarm.hour = atoi((char[]){command_buffer[0], command_buffer[1], '\0'});
+        alarm.minute = atoi((char[]){command_buffer[3], command_buffer[4], '\0'});
+        alarm.second = atoi((char[]){command_buffer[6], command_buffer[7], '\0'});
+        WAITING_ALARM = 0;
+        
+        SerialPort_Send_String("Alarma BEEP BEEP BEEP\r\n");
+        SerialPort_Send_String(format_time(alarm));
+
         return;
     }
 
-    if ((strcmp((char *)command_buffer, "ON") == 0))
+    if (CMP_STR(command_buffer, "ON"))
     {
         // Activá la transmisión de hora
         SerialPort_Send_String("Comando ON recibido\r\n");
         // FECHA: 10/06/25 HORA:15:30:56\r\n
-        char date_string[50];
-        snprintf(date_string, sizeof(date_string), "FECHA: %02u/%02u/%02u HORA:%02u:%02u:%02u\r\n",
-                 date.day, date.month, date.year, date.hour, date.minute, date.second);
-        SerialPort_Send_String(date_string);
+        
+        SerialPort_Send_String(format_date(date));
         ON_FLAG = 1;
     }
-    else if (strcmp((char *)command_buffer, "OFF") == 0)
+    else if (CMP_STR(command_buffer, "OFF"))
     {
         // Cortá la transmisión
         ON_FLAG = 0;
         SerialPort_Send_String("Comando OFF recibido\r\n");
     }
-    else if (strcmp((char *)command_buffer, "SET TIME") == 0)
+    else if (CMP_STR(command_buffer, "SET TIME"))
     {
         // Pedí la hora nueva
-        WAITING_TIME = 1; // huh
-        SerialPort_Send_String("Esperando la nueva fech...\r\n");
+        WAITING_TIME = 1;
+        SerialPort_Send_String("Esperando la nueva fecha (DD/MM/YY HH:MM:SS)...\r\n");
     }
-    else if (strcmp((char *)command_buffer, "SET ALARM") == 0)
+    else if (CMP_STR(command_buffer, "SET ALARM"))
     {
-        WAITING_ALARM = 1; // huh
-        SerialPort_Send_String("Esperando datos de alarma...\r\n");
+        WAITING_ALARM = 1;
+        SerialPort_Send_String("Esperando datos de alarma (HH:MM:SS)...\r\n");
     }
     else
     {
