@@ -170,6 +170,7 @@ int main(void)
     print_welcome();
     date = get_date(); // Obtener la fecha y hora actual
     RTC_Init();
+    _delay_ms(100); // Esperar un poco para que el RTC se inicialice correctamente
     RTC_SetDateTime(date); // Configurar el RTC con la fecha y hora actual
     sei();                 // Habilita interrupciones globales
     while (1)
