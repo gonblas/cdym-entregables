@@ -21,11 +21,13 @@
 // BUFFER
 // ====================
 
-#define CMD_BUFFER_SIZE 16
+#define CMD_BUFFER_SIZE 64
 volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 volatile uint8_t cmd_index = 0;
 volatile uint8_t command_ready = 0;
-int8_t ON_FLAG = 0;
+uint8_t ON_FLAG = 0;
+uint8_t WAITING_TIME = 0;
+uint8_t WAITING_ALARM = 0;
 
 date_t date;
 
@@ -63,15 +65,129 @@ void print_welcome()
     SerialPort_Send_String(message);
 }
 
+#include <stdlib.h> // atoi
+#include <ctype.h>  // isdigit
 
+int is_valid_date_format(const char *str)
+{
+    // Verifica longitud
+    if (!str || !(str[8] == ' ' || str[8] == '\r'))
+        return 0;
 
+    for (int i = 0; i < 8; i++)
+    {
+        if (i == 2 || i == 5)
+        {
+            if (str[i] != '/')
+                return 0;
+        }
+        else
+        {
+            if (!isdigit(str[i]))
+                return 0;
+        }
+    }
 
+    int d = atoi((char[]){str[0], str[1], '\0'});
+    int m = atoi((char[]){str[3], str[4], '\0'});
+    int y = atoi((char[]){str[6], str[7], '\0'});
 
-void compare_command(command_buffer)
+    if (m < 1 || m > 12)
+        return 0;
+
+    uint8_t max_day = days_in_month(m, y);
+    if (d < 1 || d > max_day)
+        return 0;
+
+    return 1;
+}
+
+int is_valid_time_format(const char *str)
+{
+    if (!str || str[8] != '\0')
+        return 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (i == 2 || i == 5)
+        {
+            if (str[i] != ':')
+                return 0;
+        }
+        else
+        {
+            if (!isdigit(str[i]))
+                return 0;
+        }
+    }
+
+    int h = atoi((char[]){str[0], str[1], '\0'});
+    int m = atoi((char[]){str[3], str[4], '\0'});
+    int s = atoi((char[]){str[6], str[7], '\0'});
+
+    if (h < 0 || h > 23)
+        return 0;
+    if (m < 0 || m > 59)
+        return 0;
+    if (s < 0 || s > 59)
+        return 0;
+
+    return 1;
+}
+
+void compare_command(uint8_t *command_buffer)
 {
     command_ready = 0;
 
-    if (strcmp((char *)command_buffer, "ON") == 0)
+    if (WAITING_TIME)
+    {
+        // Separar fecha y hora
+        const char *date_str = (char *)command_buffer;
+        const char *time_str = (char *)(&command_buffer[9]);
+
+        if (command_buffer[8] != ' ')
+        {
+            SerialPort_Send_String("Falta espacio separador\r\n");
+            return;
+        }
+
+        if (!is_valid_date_format(date_str) || !is_valid_time_format(time_str))
+        {
+            SerialPort_Send_String("Formato de fecha u hora inválido. Use DD/MM/YY HH:MM:SS\r\n");
+            return;
+        }
+
+        // Parsear y guardar
+        date.day = atoi((char[]){date_str[0], date_str[1], '\0'});
+        date.month = atoi((char[]){date_str[3], date_str[4], '\0'});
+        date.year = atoi((char[]){date_str[6], date_str[7], '\0'});
+        date.hour = atoi((char[]){time_str[0], time_str[1], '\0'});
+        date.minute = atoi((char[]){time_str[3], time_str[4], '\0'});
+        date.second = atoi((char[]){time_str[6], time_str[7], '\0'});
+
+        SerialPort_Send_String("Fecha y hora actualizadas\r\n");
+        WAITING_TIME = 0;
+        return;
+    }
+
+    if (WAITING_ALARM)
+    {
+        // Si está esperando la alarma, recibí los datos
+        if (cmd_index == 5) // Formato esperado: HH:MM
+        {
+            char hour_str[3] = {command_buffer[0], command_buffer[1], '\0'};
+            char minute_str[3] = {command_buffer[3], command_buffer[4], '\0'};
+
+            date.hour = atoi(hour_str);
+            date.minute = atoi(minute_str);
+
+            SerialPort_Send_String("Alarma actualizada\r\n");
+            WAITING_ALARM = 0; // Deja de esperar
+        }
+        return;
+    }
+
+    if ((strcmp((char *)command_buffer, "ON") == 0))
     {
         // Activá la transmisión de hora
         SerialPort_Send_String("Comando ON recibido\r\n");
@@ -91,10 +207,12 @@ void compare_command(command_buffer)
     else if (strcmp((char *)command_buffer, "SET TIME") == 0)
     {
         // Pedí la hora nueva
-        SerialPort_Send_String("Esperando datos de hora...\r\n");
+        WAITING_TIME = 1; // huh
+        SerialPort_Send_String("Esperando la nueva fech...\r\n");
     }
     else if (strcmp((char *)command_buffer, "SET ALARM") == 0)
     {
+        WAITING_ALARM = 1; // huh
         SerialPort_Send_String("Esperando datos de alarma...\r\n");
     }
     else
@@ -108,7 +226,7 @@ int main(void)
     usart_init();
     print_welcome();
     date = get_date(); // Obtener la fecha y hora actual
-    sei(); // Habilita interrupciones globales
+    sei();             // Habilita interrupciones globales
     while (1)
     {
         if (command_ready)

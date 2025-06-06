@@ -50,8 +50,8 @@ uint8_t days_in_month(uint8_t month, uint8_t year)
 {
     switch (month)
     {
-        case 1:  return 31; // Enero
-        case 2:  return is_leap_year(year) ? 29 : 28; // Febrero
+        case 1:  return 31;
+        case 2:  return is_leap_year(year) ? 29 : 28; 
         case 3:  return 31;
         case 4:  return 30;
         case 5:  return 31;
