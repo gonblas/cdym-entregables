@@ -1,6 +1,5 @@
 #include "i2c.h"
 
-
 void i2c_init(void)
 {
     TWSR = 0x00;

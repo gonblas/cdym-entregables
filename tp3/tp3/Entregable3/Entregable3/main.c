@@ -16,7 +16,7 @@
 #include "serialPort.h"
 #define BAUD_RATE_CONFIG 103
 #include "date.h"
-
+#include "rtc.h"
 
 #define CMP_STR(str1, str2) strcmp((char *)str1, (char *)str2) == 0
 
@@ -71,8 +71,6 @@ void print_welcome()
 #include <stdlib.h> // atoi
 #include <ctype.h>  // isdigit
 
-
-
 void compare_command(uint8_t *command_buffer)
 {
     command_ready = 0;
@@ -104,6 +102,8 @@ void compare_command(uint8_t *command_buffer)
         date.second = atoi((char[]){time_str[6], time_str[7], '\0'});
 
         SerialPort_Send_String("Fecha y hora actualizadas\r\n");
+
+        // RTC_SetDateTime(date);
         WAITING_TIME = 0;
         return;
     }
@@ -111,7 +111,7 @@ void compare_command(uint8_t *command_buffer)
     if (WAITING_ALARM)
     {
         // Si está esperando la alarma, recibí los datos
-        if (!is_valid_time_format(command_buffer)) 
+        if (!is_valid_time_format(command_buffer))
         {
             SerialPort_Send_String("Formato de hora invalido. Use HH:MM:SS\r\n");
             return;
@@ -125,7 +125,7 @@ void compare_command(uint8_t *command_buffer)
         alarm.minute = atoi((char[]){command_buffer[3], command_buffer[4], '\0'});
         alarm.second = atoi((char[]){command_buffer[6], command_buffer[7], '\0'});
         WAITING_ALARM = 0;
-        
+
         SerialPort_Send_String("Alarma BEEP BEEP BEEP\r\n");
         SerialPort_Send_String(format_time(alarm));
 
@@ -137,7 +137,7 @@ void compare_command(uint8_t *command_buffer)
         // Activá la transmisión de hora
         SerialPort_Send_String("Comando ON recibido\r\n");
         // FECHA: 10/06/25 HORA:15:30:56\r\n
-        
+
         SerialPort_Send_String(format_date(date));
         ON_FLAG = 1;
     }
@@ -169,7 +169,9 @@ int main(void)
     usart_init();
     print_welcome();
     date = get_date(); // Obtener la fecha y hora actual
-    sei();             // Habilita interrupciones globales
+    RTC_Init();
+    RTC_SetDateTime(date); // Configurar el RTC con la fecha y hora actual
+    sei();                 // Habilita interrupciones globales
     while (1)
     {
         if (command_ready)
