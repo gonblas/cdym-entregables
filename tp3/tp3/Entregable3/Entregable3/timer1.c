@@ -16,10 +16,8 @@ ISR(TIMER1_COMPA_vect)
 {
   RTC_GetDateTime(&date);
 
-  if (ON_FLAG)
-  {
+  if (ON_FLAG && !WAITING_ALARM && !WAITING_TIME)
     SerialPort_Buffered_Send_String(format_date(date));
-  }
 
   CheckAlarm();
 }

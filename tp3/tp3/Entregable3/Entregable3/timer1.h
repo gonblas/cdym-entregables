@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include "date.h"
 
-extern volatile uint8_t ON_FLAG;
+extern volatile uint8_t ON_FLAG, WAITING_TIME, WAITING_ALARM;
 extern volatile date_t date, alarm;
 
 void timer1_init();

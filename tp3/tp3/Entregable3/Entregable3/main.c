@@ -31,8 +31,8 @@ volatile uint8_t cmd_index;
 volatile uint8_t command_ready;
 
 volatile uint8_t ON_FLAG = 0;
-uint8_t WAITING_TIME = 0;
-uint8_t WAITING_ALARM = 0;
+volatile uint8_t WAITING_TIME = 0;
+volatile uint8_t WAITING_ALARM = 0;
 
 volatile date_t date, alarm;
 
