@@ -33,6 +33,7 @@ volatile uint8_t command_ready;
 volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
+volatile uint8_t SECOND_ELAPSED_FLAG = 0;
 
 volatile date_t date, alarm;
 
@@ -134,6 +135,26 @@ void compare_command(uint8_t *command_buffer)
 	}
 }
 
+void CheckAlarm()
+{
+	static uint8_t alarm_triggered = 0;
+	static uint8_t counter = 0;
+	if (!alarm_triggered &&
+			date.hour == alarm.hour &&
+			date.minute == alarm.minute &&
+			date.second == alarm.second)
+	{
+		alarm_triggered = 1;
+		counter = 5;
+	}
+
+	if (alarm_triggered)
+	{
+		SerialPort_Buffered_Send_String("Alarma\r\n");
+		alarm_triggered = (--counter > 0) ? 1 : 0;
+	}
+}
+
 int main(void)
 {
 	uart_init();
@@ -148,5 +169,16 @@ int main(void)
 	{
 		if (command_ready)
 			compare_command(command_buffer);
+
+		if (SECOND_ELAPSED_FLAG)
+		{
+			SECOND_ELAPSED_FLAG = 0;
+			RTC_GetDateTime(&date);
+
+			if (ON_FLAG && !WAITING_ALARM && !WAITING_TIME)
+				SerialPort_Buffered_Send_String(format_date(date));
+
+			CheckAlarm();
+		}
 	}
 }
