@@ -18,6 +18,7 @@
 #include "date.h"
 #include "rtc.h"
 #include "uart.h"
+#include "timer1.h"
 
 #define CMP_STR(str1, str2) strcmp((char *)str1, (char *)str2) == 0
 
@@ -29,11 +30,11 @@ volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 volatile uint8_t cmd_index;
 volatile uint8_t command_ready;
 
-uint8_t ON_FLAG = 0;
+volatile uint8_t ON_FLAG = 0;
 uint8_t WAITING_TIME = 0;
 uint8_t WAITING_ALARM = 0;
 
-date_t date, alarm;
+volatile date_t date, alarm;
 
 void print_welcome()
 {
@@ -140,18 +141,11 @@ int main(void)
 	RTC_Init();
 	_delay_ms(100);				 // Esperar un poco para que el RTC se inicialice correctamente
 	RTC_SetDateTime(date); // Configurar el RTC con la fecha y hora actual
-	sei();								 // Habilita interrupciones globales
+	timer1_init();
+	sei(); // Habilita interrupciones globales
 	while (1)
 	{
 		if (command_ready)
 			compare_command(command_buffer);
-
-		RTC_GetDateTime(&date);
-		if (ON_FLAG)
-		{
-			// Si está ON, enviá la fecha y hora cada segundo
-			SerialPort_Buffered_Send_String(format_date(date));
-			}
-		_delay_ms(1000); // Esperar 1 segundo
 	}
 }
