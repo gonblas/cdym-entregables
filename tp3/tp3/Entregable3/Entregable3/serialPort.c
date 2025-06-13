@@ -30,14 +30,12 @@
  void SerialPort_TX_Interrupt_Enable(void){
    UCSR0B |= (1<<UDRIE0);
    //UCSR0B |=(1<<TXCIE0); //interrupcion TXC
- 
  }
  
  void SerialPort_TX_Interrupt_Disable(void)
  {
    UCSR0B &=~(1<<UDRIE0);
-   //UCSR0B &=~(1<<TXCIE0); //interrupcion TXC
- 
+   //CSR0B &=~(1<<TXCIE0); //interrupcion TXC
  }
  
  
