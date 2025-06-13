@@ -66,28 +66,6 @@ uint8_t days_in_month(uint8_t month, uint8_t year)
     }
 }
 
-void updateDate(date_t *date)
-{
-    if (++date->second < 60) return;
-    date->second = 0;
-
-    if (++date->minute < 60) return;
-    date->minute = 0;
-
-    if (++date->hour < 24) return;
-    date->hour = 0;
-
-    if (++date->day <= days_in_month(date->month, date->year)) return;
-    date->day = 1;
-
-    if (++date->month <= 12) return;
-    date->month = 1;
-
-    if (++date->year <= 99) return;
-    date->year = 0;
-}
-
-
 int is_valid_date_format(const char *str)
 {
     // Verifica longitud

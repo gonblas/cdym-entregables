@@ -157,13 +157,13 @@ void CheckAlarm()
 
 int main(void)
 {
-	uart_init();
+	UART_init();
 	print_welcome();
 	date = get_date(); // Obtener la fecha y hora actual
 	RTC_Init();
 	_delay_ms(100);				 // Esperar un poco para que el RTC se inicialice correctamente
 	RTC_SetDateTime(date); // Configurar el RTC con la fecha y hora actual
-	timer1_init();
+	TIMER1_init();
 	sei(); // Habilita interrupciones globales
 	while (1)
 	{

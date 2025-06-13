@@ -5,11 +5,11 @@
 #define BAUD_RATE_CONFIG 103
 
 volatile char tx_buffer[CMD_BUFFER_SIZE];
-extern volatile uint8_t tx_head = 0;
-extern volatile uint8_t tx_tail = 0;
-extern volatile uint8_t tx_busy = 0;
+volatile uint8_t tx_head = 0;
+volatile uint8_t tx_tail = 0;
+volatile uint8_t tx_busy = 0;
 
-void uart_init()
+void UART_init()
 {
   SerialPort_Init(BAUD_RATE_CONFIG); // Configura UART a 9600bps, 8N1 @ F_CPU = 16MHz
   SerialPort_TX_Enable();            // habilita el transmisor
@@ -18,8 +18,7 @@ void uart_init()
   SerialPort_RX_Interrupt_Enable();  // habilita la interrupción de recepción
 }
 
-
-ISR(USART_RX_vect) //ESTA BIEN
+ISR(USART_RX_vect) // ESTA BIEN
 {
   uint8_t received = UDR0;
   if ((received == '\b' || received == 0x7F) && cmd_index > 0)
@@ -38,21 +37,22 @@ ISR(USART_RX_vect) //ESTA BIEN
   }
 }
 
-
 // A partir de aca esta todo mal
 
-
-void SerialPort_Buffered_Send_Char(uint8_t data) {
+void SerialPort_Buffered_Send_Char(uint8_t data)
+{
   uint8_t next_head = (tx_head + 1) % CMD_BUFFER_SIZE;
 
   // Esperar si el buffer está lleno
-  while (next_head == tx_tail); // bloqueante, o podés implementar timeout
+  while (next_head == tx_tail)
+    ; // bloqueante, o podés implementar timeout
 
   tx_buffer[tx_head] = data;
   tx_head = next_head;
 
   // Habilitar interrupción de transmisión si no está activa
-  if (!tx_busy) {
+  if (!tx_busy)
+  {
     tx_busy = 1;
     UCSR0B |= (1 << UDRIE0); // Habilita interrupción de buffer vacío
   }
@@ -64,9 +64,11 @@ ISR(USART_TX_vect)
   // Actualmente no se usa, pero es buena práctica tenerla si se va a enviar datos
 }
 
-ISR(USART_UDRE_vect) {
+ISR(USART_UDRE_vect)
+{
   // Si el buffer está vacío, desactivar interrupción
-  if (tx_tail == tx_head) {
+  if (tx_tail == tx_head)
+  {
     tx_busy = 0;
     UCSR0B &= ~(1 << UDRIE0); // Deshabilita interrupción de transmisión
     return;
@@ -77,9 +79,10 @@ ISR(USART_UDRE_vect) {
   tx_tail = (tx_tail + 1) % CMD_BUFFER_SIZE;
 }
 
-
-void SerialPort_Buffered_Send_String(char *str) {
-  while (*str) {
+void SerialPort_Buffered_Send_String(char *str)
+{
+  while (*str)
+  {
     SerialPort_Buffered_Send_Char(*str++);
   }
 }

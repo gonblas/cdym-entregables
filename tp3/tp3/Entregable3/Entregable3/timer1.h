@@ -8,7 +8,12 @@
 extern volatile uint8_t ON_FLAG, WAITING_TIME, WAITING_ALARM, SECOND_ELAPSED_FLAG;
 extern volatile date_t date, alarm;
 
-void timer1_init();
-void RTC_CheckAlarm(date_t date, date_t alarm_date);
+/**
+ * @brief Inicializa el temporizador 1 (Timer1) del microcontrolador.
+ *
+ * Configura los registros necesarios para poner en funcionamiento el Timer1,
+ * permitiendo su uso para medición de tiempo, generación de retardos o interrupciones.
+ */
+void TIMER1_init();
 
 #endif

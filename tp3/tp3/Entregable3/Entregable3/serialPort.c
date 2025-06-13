@@ -62,7 +62,7 @@
    UDR0 = data;
  }
  
- void SerialPort_Send_String(char * msg){ //msg -> "Hola como andan hoy?" 20 ASCII+findecadena, tardo=20ms
+ void SerialPort_Send_String(char * msg){
    uint8_t i = 0;
    //'\0' = 0x00
    while(msg[i]){ // *(msg+i)

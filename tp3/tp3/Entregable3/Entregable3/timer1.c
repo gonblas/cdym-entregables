@@ -1,6 +1,6 @@
 #include "timer1.h"
 
-void timer1_init(void)
+void TIMER1_init(void)
 {
   // F_CPU = 16 MHz
   // Prescaler = 1024 → tick = 64 µs
