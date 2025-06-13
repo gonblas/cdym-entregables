@@ -1,14 +1,13 @@
 #include "uart.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
-#define CMD_BUFFER_SIZE 128
-volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
-volatile uint8_t cmd_index = 0;
-volatile uint8_t command_ready = 0;
+#define BAUD_RATE_CONFIG 103
 
 volatile char tx_buffer[CMD_BUFFER_SIZE];
-volatile uint8_t tx_head = 0;
-volatile uint8_t tx_tail = 0;
-volatile uint8_t tx_busy = 0;
+extern volatile uint8_t tx_head = 0;
+extern volatile uint8_t tx_tail = 0;
+extern volatile uint8_t tx_busy = 0;
 
 void uart_init()
 {
@@ -20,7 +19,7 @@ void uart_init()
 }
 
 
-ISR(USART_RX_vect) //ESTA BIEN ✅
+ISR(USART_RX_vect) //ESTA BIEN
 {
   uint8_t received = UDR0;
   if ((received == '\b' || received == 0x7F) && cmd_index > 0)
@@ -44,7 +43,7 @@ ISR(USART_RX_vect) //ESTA BIEN ✅
 
 
 void SerialPort_Buffered_Send_Char(uint8_t data) {
-  uint8_t next_head = (tx_head + 1) % TX_BUFFER_SIZE;
+  uint8_t next_head = (tx_head + 1) % CMD_BUFFER_SIZE;
 
   // Esperar si el buffer está lleno
   while (next_head == tx_tail); // bloqueante, o podés implementar timeout
@@ -75,7 +74,7 @@ ISR(USART_UDRE_vect) {
 
   // Enviar siguiente carácter del buffer
   UDR0 = tx_buffer[tx_tail];
-  tx_tail = (tx_tail + 1) % TX_BUFFER_SIZE;
+  tx_tail = (tx_tail + 1) % CMD_BUFFER_SIZE;
 }
 
 
