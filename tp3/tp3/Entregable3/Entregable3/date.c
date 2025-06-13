@@ -164,8 +164,8 @@ uint8_t* format_time(date_t date) {
 }
 
 uint8_t* format_date(date_t date) {
-    static uint8_t formatted_date[20]; // "DD/MM/YY HH:MM:SS\0"
-    snprintf((char *)formatted_date, sizeof(formatted_date), "%02u/%02u/%02u %s",
+    static uint8_t formatted_date[22]; // "DD/MM/YY HH:MM:SS\0"
+    snprintf((char *)formatted_date, sizeof(formatted_date), "%02u/%02u/%02u %s\r\n",
              date.day, date.month, date.year, format_time(date));
     return formatted_date;
 }
