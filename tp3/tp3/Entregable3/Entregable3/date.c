@@ -157,8 +157,8 @@ int is_valid_time_format(const char *str)
 
 
 uint8_t* format_time(date_t date) {
-    static uint8_t formatted_time[9]; // "HH:MM:SS\0"
-    snprintf((char *)formatted_time, sizeof(formatted_time), "%02u:%02u:%02u",
+    static uint8_t formatted_time[11]; // "HH:MM:SS\0"
+    snprintf((char *)formatted_time, sizeof(formatted_time), "%02u:%02u:%02u\r\n",
              date.hour, date.minute, date.second);
     return formatted_time;
 }

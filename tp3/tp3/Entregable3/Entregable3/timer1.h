@@ -9,5 +9,6 @@ extern volatile uint8_t ON_FLAG;
 extern volatile date_t date, alarm;
 
 void timer1_init();
+void RTC_CheckAlarm(date_t date, date_t alarm_date);
 
 #endif

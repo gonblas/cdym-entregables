@@ -97,7 +97,7 @@ void compare_command(uint8_t *command_buffer)
 		alarm.second = atoi((char[]){command_buffer[6], command_buffer[7], '\0'});
 		WAITING_ALARM = 0;
 
-		SerialPort_Buffered_Send_String("Alarma BEEP BEEP BEEP\r\n");
+		SerialPort_Buffered_Send_String("Alarma configurada correctamente para las ");
 		SerialPort_Buffered_Send_String(format_time(alarm));
 
 		return;
