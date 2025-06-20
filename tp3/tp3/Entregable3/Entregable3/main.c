@@ -27,7 +27,7 @@ volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
 volatile uint8_t SECOND_ELAPSED_FLAG = 0;
-
+volatile uint8_t ALARM_TRIGGERED = 0; 
 date_t date, alarm;
 
 void print_welcome()
@@ -92,7 +92,7 @@ void compare_command(volatile uint8_t *command_buffer)
 		WAITING_ALARM = 0;
 
 		char full_msg[64];
-		sprintf(full_msg, "Alarma configurada correctamente para las %s", (char *) format_time(alarm));
+		sprintf(full_msg, "Alarma configurada correctamente para las %s", (char *)format_time(alarm));
 		SerialPort_Buffered_Send_String(full_msg);
 
 		return;
@@ -130,9 +130,8 @@ void compare_command(volatile uint8_t *command_buffer)
 
 void CheckAlarm()
 {
-	static uint8_t alarm_triggered = 0;
 	static uint8_t counter = 0;
-	if (!alarm_triggered &&
+	if (!ALARM_TRIGGERED &&
 			date.hour == alarm.hour &&
 			date.minute == alarm.minute &&
 			date.second == alarm.second &&
@@ -140,14 +139,14 @@ void CheckAlarm()
 			date.month == alarm.month &&
 			date.year == alarm.year)
 	{
-		alarm_triggered = 1;
+		ALARM_TRIGGERED = 1;
 		counter = 5;
 	}
 
-	if (alarm_triggered)
+	if (ALARM_TRIGGERED)
 	{
 		SerialPort_Buffered_Send_String("Alarma\r\n");
-		alarm_triggered = (--counter > 0) ? 1 : 0;
+		ALARM_TRIGGERED = (--counter > 0) ? 1 : 0;
 	}
 }
 
@@ -171,7 +170,7 @@ int main(void)
 			SECOND_ELAPSED_FLAG = 0;
 			RTC_GetDateTime(&date);
 
-			if (ON_FLAG && !WAITING_ALARM && !WAITING_TIME)
+			if (ON_FLAG && !WAITING_ALARM && !WAITING_TIME && !ALARM_TRIGGERED)
 				SerialPort_Buffered_Send_String(format_date(date));
 
 			CheckAlarm();
