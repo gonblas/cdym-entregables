@@ -6,7 +6,7 @@
 #include "date.h"
 
 extern volatile uint8_t ON_FLAG, WAITING_TIME, WAITING_ALARM, SECOND_ELAPSED_FLAG;
-extern volatile date_t date, alarm;
+extern date_t date, alarm;
 
 /**
  * @brief Inicializa el temporizador 1 (Timer1) del microcontrolador.

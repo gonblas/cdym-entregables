@@ -1,10 +1,3 @@
-/*
- * Microchip.c
- *
- * Created: 2/6/2025 14:40:23
- * Author : Ivan Trolanis y Gonzalo Fiasco
- */
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
@@ -28,14 +21,14 @@
 
 volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 volatile uint8_t cmd_index;
-volatile uint8_t command_ready;
 
+volatile uint8_t COMMAND_READY;
 volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
 volatile uint8_t SECOND_ELAPSED_FLAG = 0;
 
-volatile date_t date, alarm;
+date_t date, alarm;
 
 void print_welcome()
 {
@@ -43,9 +36,9 @@ void print_welcome()
 	SerialPort_Buffered_Send_String(message);
 }
 
-void compare_command(uint8_t *command_buffer)
+void compare_command(volatile uint8_t *command_buffer)
 {
-	command_ready = 0;
+	COMMAND_READY = 0;
 
 	if (WAITING_TIME)
 	{
@@ -99,7 +92,7 @@ void compare_command(uint8_t *command_buffer)
 		WAITING_ALARM = 0;
 
 		char full_msg[64];
-		sprintf(full_msg, "Alarma configurada correctamente para las %s", format_time(alarm));
+		sprintf(full_msg, "Alarma configurada correctamente para las %s", (char *) format_time(alarm));
 		SerialPort_Buffered_Send_String(full_msg);
 
 		return;
@@ -142,7 +135,10 @@ void CheckAlarm()
 	if (!alarm_triggered &&
 			date.hour == alarm.hour &&
 			date.minute == alarm.minute &&
-			date.second == alarm.second)
+			date.second == alarm.second &&
+			date.day == alarm.day &&
+			date.month == alarm.month &&
+			date.year == alarm.year)
 	{
 		alarm_triggered = 1;
 		counter = 5;
@@ -167,7 +163,7 @@ int main(void)
 	sei(); // Habilita interrupciones globales
 	while (1)
 	{
-		if (command_ready)
+		if (COMMAND_READY)
 			compare_command(command_buffer);
 
 		if (SECOND_ELAPSED_FLAG)

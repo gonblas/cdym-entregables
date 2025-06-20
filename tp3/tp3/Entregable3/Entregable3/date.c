@@ -1,41 +1,50 @@
 #include "date.h"
 
-uint8_t month_str_to_num(const char *month_str) {
-    if      (strcmp(month_str, "Jan") == 0) return 1;
-    else if (strcmp(month_str, "Feb") == 0) return 2;
-    else if (strcmp(month_str, "Mar") == 0) return 3;
-    else if (strcmp(month_str, "Apr") == 0) return 4;
-    else if (strcmp(month_str, "May") == 0) return 5;
-    else if (strcmp(month_str, "Jun") == 0) return 6;
-    else if (strcmp(month_str, "Jul") == 0) return 7;
-    else if (strcmp(month_str, "Aug") == 0) return 8;
-    else if (strcmp(month_str, "Sep") == 0) return 9;
-    else if (strcmp(month_str, "Oct") == 0) return 10;
-    else if (strcmp(month_str, "Nov") == 0) return 11;
-    else if (strcmp(month_str, "Dec") == 0) return 12;
-    else return 0; // valor inválido
+uint8_t month_str_to_num(const char *month_str)
+{
+    if (strcmp(month_str, "Jan") == 0)
+        return 1;
+    else if (strcmp(month_str, "Feb") == 0)
+        return 2;
+    else if (strcmp(month_str, "Mar") == 0)
+        return 3;
+    else if (strcmp(month_str, "Apr") == 0)
+        return 4;
+    else if (strcmp(month_str, "May") == 0)
+        return 5;
+    else if (strcmp(month_str, "Jun") == 0)
+        return 6;
+    else if (strcmp(month_str, "Jul") == 0)
+        return 7;
+    else if (strcmp(month_str, "Aug") == 0)
+        return 8;
+    else if (strcmp(month_str, "Sep") == 0)
+        return 9;
+    else if (strcmp(month_str, "Oct") == 0)
+        return 10;
+    else if (strcmp(month_str, "Nov") == 0)
+        return 11;
+    else if (strcmp(month_str, "Dec") == 0)
+        return 12;
+    else
+        return 0; // valor inválido
 }
 
 date_t get_date()
 {
     uint16_t year_full;
     date_t date;
-    char month_str[4]; // "Jan", "Feb", etc.
+    char month_str[4]; // "Jan", "Feb", "Mar", etc.
 
     char date_string[] = __DATE__; // Ejemplo: "Jul 27 2012"
     char time_string[] = __TIME__; // Ejemplo: "21:06:19"
 
     sscanf(time_string, "%hhu:%hhu:%hhu", &date.hour, &date.minute, &date.second);
-    sscanf(date_string, "%3s %hhu %hu", month_str, &date.day, &year_full);
+    sscanf(date_string, "%3s %hhu %hu", month_str, &date.day, (short unsigned int *) &year_full);
 
     date.month = month_str_to_num(month_str);
     date.year = year_full % 100;
 
-    // (Opcional) imprimir
-    printf("Fecha: %02u/%02u/%02u - Hora: %02u:%02u:%02u\n",
-           date.day, date.month, date.year, date.hour, date.minute, date.second);
-    
-    
     return date;
 }
 
@@ -50,19 +59,32 @@ uint8_t days_in_month(uint8_t month, uint8_t year)
 {
     switch (month)
     {
-        case 1:  return 31;
-        case 2:  return is_leap_year(year) ? 29 : 28; 
-        case 3:  return 31;
-        case 4:  return 30;
-        case 5:  return 31;
-        case 6:  return 30;
-        case 7:  return 31;
-        case 8:  return 31;
-        case 9:  return 30;
-        case 10: return 31;
-        case 11: return 30;
-        case 12: return 31;
-        default: return 0;  // mes inválido
+    case 1:
+        return 31;
+    case 2:
+        return is_leap_year(year) ? 29 : 28;
+    case 3:
+        return 31;
+    case 4:
+        return 30;
+    case 5:
+        return 31;
+    case 6:
+        return 30;
+    case 7:
+        return 31;
+    case 8:
+        return 31;
+    case 9:
+        return 30;
+    case 10:
+        return 31;
+    case 11:
+        return 30;
+    case 12:
+        return 31;
+    default:
+        return 0; // mes inválido
     }
 }
 
@@ -133,15 +155,16 @@ int is_valid_time_format(const char *str)
     return 1;
 }
 
-
-uint8_t* format_time(date_t date) {
+uint8_t *format_time(date_t date)
+{
     static uint8_t formatted_time[11]; // "HH:MM:SS\0"
     snprintf((char *)formatted_time, sizeof(formatted_time), "%02u:%02u:%02u\r\n",
              date.hour, date.minute, date.second);
     return formatted_time;
 }
 
-uint8_t* format_date(date_t date) {
+uint8_t *format_date(date_t date)
+{
     static uint8_t formatted_date[22]; // "DD/MM/YY HH:MM:SS\0"
     snprintf((char *)formatted_date, sizeof(formatted_date), "%02u/%02u/%02u %s",
              date.day, date.month, date.year, format_time(date));
