@@ -8,6 +8,7 @@
 extern volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 extern volatile uint8_t cmd_index;
 extern volatile uint8_t COMMAND_READY;
+extern volatile uint8_t NEW_CHAR_RECEIVED;
 
 /**
  * @brief Inicializa el módulo UART para la comunicación serie.

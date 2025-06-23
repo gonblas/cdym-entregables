@@ -20,7 +20,14 @@ void UART_init()
 
 ISR(USART_RX_vect) 
 {
+  NEW_CHAR_RECEIVED = 1;
+}
+
+
+void handle_received() 
+{
   uint8_t received = UDR0;
+  NEW_CHAR_RECEIVED = 0; // Resetea la bandera de nuevo carácter recibido
   if ((received == '\b' || received == 0x7F) && cmd_index > 0)
   {
     cmd_index--;
@@ -36,6 +43,7 @@ ISR(USART_RX_vect)
     command_buffer[cmd_index++] = received;
   }
 }
+
 
 void UART_Buffered_Send_Char(uint8_t data)
 {

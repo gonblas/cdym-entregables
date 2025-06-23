@@ -162,8 +162,11 @@ int main(void)
 	sei(); // Habilita interrupciones globales
 	while (1)
 	{
+		if (NEW_CHAR_RECEIVED)
+			handle_received();
 		if (COMMAND_READY)
 			compare_command(command_buffer);
+
 
 		if (SECOND_ELAPSED_FLAG)
 		{
