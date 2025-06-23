@@ -18,14 +18,15 @@ void UART_init()
   SerialPort_RX_Interrupt_Enable();  // habilita la interrupción de recepción
 }
 
-ISR(USART_RX_vect) 
+ISR(USART_RX_vect)
 {
   NEW_CHAR_RECEIVED = 1;
 }
 
-
-void handle_received(uint8_t received) 
+void handle_received()
 {
+  uint8_t received = UDR0;
+  NEW_CHAR_RECEIVED = 0;
   if ((received == '\b' || received == 0x7F) && cmd_index > 0)
   {
     cmd_index--;
@@ -41,7 +42,6 @@ void handle_received(uint8_t received)
     command_buffer[cmd_index++] = received;
   }
 }
-
 
 void UART_Buffered_Send_Char(uint8_t data)
 {
@@ -62,8 +62,12 @@ void UART_Buffered_Send_Char(uint8_t data)
   }
 }
 
-
 ISR(USART_UDRE_vect)
+{
+  BUFFER_EMPTY = 1;
+}
+
+void handle_send_char()
 {
   // Si el buffer está vacío, desactivar interrupción
   if (tx_tail == tx_head)
@@ -76,5 +80,6 @@ ISR(USART_UDRE_vect)
   // Enviar siguiente carácter del buffer
   UDR0 = tx_buffer[tx_tail];
   tx_tail = (tx_tail + 1) % CMD_BUFFER_SIZE;
-}
 
+  BUFFER_EMPTY = 0;
+}

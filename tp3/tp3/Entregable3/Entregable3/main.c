@@ -24,6 +24,7 @@ volatile uint8_t cmd_index;
 
 volatile uint8_t COMMAND_READY = 0;
 volatile uint8_t NEW_CHAR_RECEIVED = 0;
+volatile uint8_t BUFFER_EMPTY = 0;
 volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
@@ -165,9 +166,11 @@ int main(void)
 	{
 		if (NEW_CHAR_RECEIVED)
 		{
-			uint8_t received = UDR0;
-			NEW_CHAR_RECEIVED = 0;
-			handle_received(received);
+			handle_received();
+		}
+		if (BUFFER_EMPTY)
+		{
+			handle_send_char();
 		}
 		if (COMMAND_READY)
 			compare_command(command_buffer);
