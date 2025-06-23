@@ -28,7 +28,7 @@ volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
 volatile uint8_t SECOND_ELAPSED_FLAG = 0;
-volatile uint8_t ALARM_TRIGGERED = 0; 
+volatile uint8_t ALARM_TRIGGERED = 0;
 date_t date, alarm;
 
 void print_welcome()
@@ -164,10 +164,13 @@ int main(void)
 	while (1)
 	{
 		if (NEW_CHAR_RECEIVED)
-			handle_received();
+		{
+			uint8_t received = UDR0;
+			NEW_CHAR_RECEIVED = 0;
+			handle_received(received);
+		}
 		if (COMMAND_READY)
 			compare_command(command_buffer);
-
 
 		if (SECOND_ELAPSED_FLAG)
 		{

@@ -24,10 +24,8 @@ ISR(USART_RX_vect)
 }
 
 
-void handle_received() 
+void handle_received(uint8_t received) 
 {
-  uint8_t received = UDR0;
-  NEW_CHAR_RECEIVED = 0; 
   if ((received == '\b' || received == 0x7F) && cmd_index > 0)
   {
     cmd_index--;
