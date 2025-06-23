@@ -165,13 +165,9 @@ int main(void)
 	while (1)
 	{
 		if (NEW_CHAR_RECEIVED)
-		{
 			handle_received();
-		}
 		if (BUFFER_EMPTY)
-		{
 			handle_send_char();
-		}
 		if (COMMAND_READY)
 			compare_command(command_buffer);
 
