@@ -22,7 +22,8 @@
 volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 volatile uint8_t cmd_index;
 
-volatile uint8_t COMMAND_READY;
+volatile uint8_t COMMAND_READY = 0;
+volatile uint8_t NEW_CHAR_RECEIVED = 0;
 volatile uint8_t ON_FLAG = 0;
 volatile uint8_t WAITING_TIME = 0;
 volatile uint8_t WAITING_ALARM = 0;
