@@ -10,7 +10,7 @@ void SerialPort_Init(uint8_t config)
   // config = 0x25 ==> Configuro UART 9600bps, 8 bit data, 1 stop @ F_CPU = 4Hz.
   UCSR0B = 0;
   UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-  //  UBRR0H = (unsigned char)(config>>8);
+  UBRR0H = (unsigned char)(config>>8);
   UBRR0L = (unsigned char)config;
 }
 
@@ -18,18 +18,6 @@ void SerialPort_Init(uint8_t config)
 void SerialPort_TX_Enable(void)
 {
   UCSR0B |= (1 << TXEN0);
-}
-
-void SerialPort_TX_Interrupt_Enable(void)
-{
-  UCSR0B |= (1 << UDRIE0);
-  // UCSR0B |=(1<<TXCIE0); //interrupcion TXC
-}
-
-void SerialPort_TX_Interrupt_Disable(void)
-{
-  UCSR0B &= ~(1 << UDRIE0);
-  // CSR0B &=~(1<<TXCIE0); //interrupcion TXC
 }
 
 // Inicialización de Receptor

@@ -13,7 +13,6 @@ void UART_init()
 {
   SerialPort_Init(BAUD_RATE_CONFIG); // Configura UART a 9600bps, 8N1 @ F_CPU = 16MHz
   SerialPort_TX_Enable();            // habilita el transmisor
-  SerialPort_TX_Interrupt_Enable();  // habilita el transmisor
   SerialPort_RX_Enable();            // habilita el receptor
   SerialPort_RX_Interrupt_Enable();  // habilita la interrupción de recepción
 }
@@ -55,16 +54,14 @@ void UART_Buffered_Send_Char(uint8_t data)
   tx_head = next_head;
 
   // Habilitar interrupción de transmisión si no está activa
-  if (!tx_busy)
-  {
-    tx_busy = 1;
-    UCSR0B |= (1 << UDRIE0); // Habilita interrupción de buffer vacío
-  }
+
+  UCSR0B |= (1 << TXCIE0); // Habilita interrupción de buffer vacío
+  NEW_CHAR_SENT = 1;
 }
 
-ISR(USART_UDRE_vect)
+ISR(USART_TX_vect)
 {
-  BUFFER_EMPTY = 1;
+  NEW_CHAR_SENT = 1;
 }
 
 void handle_send_char()
@@ -72,14 +69,12 @@ void handle_send_char()
   // Si el buffer está vacío, desactivar interrupción
   if (tx_tail == tx_head)
   {
-    tx_busy = 0;
-    UCSR0B &= ~(1 << UDRIE0); // Deshabilita interrupción de transmisión
+    UCSR0B &= ~(1 << TXCIE0); // Deshabilita interrupción de transmisión
     return;
   }
 
   // Enviar siguiente carácter del buffer
   UDR0 = tx_buffer[tx_tail];
   tx_tail = (tx_tail + 1) % CMD_BUFFER_SIZE;
-
-  BUFFER_EMPTY = 0;
+  NEW_CHAR_SENT = 0;
 }
