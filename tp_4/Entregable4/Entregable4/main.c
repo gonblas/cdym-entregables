@@ -6,39 +6,24 @@
  */
 
 #include <avr/io.h>
+#define F_CPU 16000000UL // Definimos la frecuencia del CPU a 16MHz
+#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <string.h>
 #include "uart.h"
 #include "serialPort.h"
-#include "timer1.h"
-
-typedef struct
-{
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} RGB_t;
-
-RGB_t colors[] = {
-    {0, 255, 255},   // RED
-    {255, 0, 255},   // GREEN
-    {255, 255, 0},   // BLUE
-    {255, 0, 0},     // CIAN
-    {0, 0, 255},     // YELLOW
-    {0, 255, 0},     // MAGENTA
-    {0, 0, 0}        // WHITE
-    {255, 255, 255}, // BLACK
-}
-
-typedef enum {RED = 0, GREEN, BLUE, CIAN, YELLOW, MAGENTA, WHITE, BLACK} color_t;
-color_t color_index;
+#include "pwm.h"
+#include "color.h"
 
 volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 volatile uint8_t cmd_index;
 volatile uint8_t COMMAND_READY;
 volatile uint8_t NEW_CHAR_RECEIVED;
 volatile uint8_t NEW_CHAR_SENT;
+uint8_t color_index;
+
+
 
 void print_options()
 {
@@ -49,20 +34,33 @@ void print_options()
 int main(void)
 {
     UART_init();
-    TIMER1_init();
+    PWM_Init();
+
+    _delay_ms(100); // Espera para que el UART se inicialice correctamente
+
+    print_options();
     sei();
-    DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB5);
     /* Replace with your application code */
     while (1)
     {
         if (NEW_CHAR_RECEIVED)
-        {
             handle_received();
-        }
+        if (NEW_CHAR_SENT)
+            handle_send_char();
         if (COMMAND_READY)
         {
-            color_index = atoi();
+            uint8_t cmd = command_buffer[cmd_index];
+            if ((cmd >= '1') && (cmd <= '8'))
+                color_index = atoi(cmd) - 1;
+            else
+                SerialPort_Buffered_Send_String("Comando invalido.\r\n");
+
+            RGB_t new_color = colors_vec[color_index];
+            PWM_Set_New_Color(new_color);
             // Hago cosas
+            COMMAND_READY = 0; // Reseteo el flag de comando listo
         }
+
+        PWM_Update_Red();
     }
 }

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "serialPort.h"
 
-#define CMD_BUFFER_SIZE 128 
+#define CMD_BUFFER_SIZE 256 
 extern volatile uint8_t command_buffer[CMD_BUFFER_SIZE];
 extern volatile uint8_t cmd_index;
 extern volatile uint8_t COMMAND_READY;

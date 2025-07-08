@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>tp4</AssemblyName>
-    <Name>tp4</Name>
-    <RootNamespace>tp4</RootNamespace>
+    <AssemblyName>Entregable4</AssemblyName>
+    <Name>Entregable4</Name>
+    <RootNamespace>Entregable4</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
