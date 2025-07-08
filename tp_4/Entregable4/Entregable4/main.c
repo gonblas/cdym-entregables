@@ -11,6 +11,7 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 #include <string.h>
+#include "adc.h"
 #include "uart.h"
 #include "serialPort.h"
 #include "pwm.h"
@@ -21,9 +22,23 @@ volatile uint8_t cmd_index;
 volatile uint8_t COMMAND_READY;
 volatile uint8_t NEW_CHAR_RECEIVED;
 volatile uint8_t NEW_CHAR_SENT;
-uint8_t color_index;
+uint8_t adc_value;
 
+uint8_t color_index = 0;
+uint8_t cmd= 0;
 
+void handle_new_color()
+{
+    cmd = command_buffer[cmd_index];
+    if ((cmd >= '1') && (cmd <= '8'))
+        color_index = cmd - '1';
+    else
+        SerialPort_Buffered_Send_String("Comando invalido.\r\n");
+
+    RGB_t new_color = colors_vec[color_index];
+    PWM_Set_New_Color(new_color);
+    COMMAND_READY = 0;
+}
 
 void print_options()
 {
@@ -34,6 +49,7 @@ void print_options()
 int main(void)
 {
     UART_init();
+    ADC_Init();
     PWM_Init();
 
     _delay_ms(100); // Espera para que el UART se inicialice correctamente
@@ -48,19 +64,10 @@ int main(void)
         if (NEW_CHAR_SENT)
             handle_send_char();
         if (COMMAND_READY)
-        {
-            uint8_t cmd = command_buffer[cmd_index];
-            if ((cmd >= '1') && (cmd <= '8'))
-                color_index = atoi(cmd) - 1;
-            else
-                SerialPort_Buffered_Send_String("Comando invalido.\r\n");
+            handle_new_color();
 
-            RGB_t new_color = colors_vec[color_index];
-            PWM_Set_New_Color(new_color);
-            // Hago cosas
-            COMMAND_READY = 0; // Reseteo el flag de comando listo
-        }
-
+        adc_value = ADC_Get_Value();
+        
         PWM_Update_Red();
     }
 }
