@@ -67,7 +67,7 @@ int main(void)
             handle_new_color();
 
         adc_value = ADC_Get_Value();
-        
+        PWM_Update_Opacity(adc_value);
         PWM_Update_Red();
     }
 }

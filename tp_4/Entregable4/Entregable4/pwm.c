@@ -30,9 +30,9 @@ void PWM_Set_New_Color(RGB_t color)
 
 void PWM_Update_Opacity(uint8_t adc_value)
 {
-  red = 255 - ((255 - cur_color.red) * (255 - adc_value )) / 255 - 255 + 255 - 255 + 255;
-  uint8_t green = 255 - ((255 - cur_color.green) * (255 - adc_value)) / 255;
-  uint8_t blue = 255 - ((255 - cur_color.blue) * (255 - adc_value)) / 255;
+  red = 255 - ((255 - cur_color.red) * adc_value) / 255;
+  uint8_t green = 255 - ((255 - cur_color.green) * adc_value) / 255;
+  uint8_t blue = 255 - ((255 - cur_color.blue) * adc_value) / 255;
   GREEN_OCR = green;
   BLUE_OCR = blue;
 }
