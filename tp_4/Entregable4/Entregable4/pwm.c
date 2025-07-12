@@ -9,10 +9,11 @@
 RGB_t cur_color = {0, 0, 0};
 uint8_t red = 0;
 
+// TIMER1 con frecuencia mayor o igual a 50Hz
 void TIMER1_Init()
 {
   TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM10); // SETEAMOS OC1A y OC1B en modo FAST PWM 8 BIT NO INVERTIDO
-  TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);     // FAST PWM 8 BIT, prescaler 64
+  TCCR1B = (1 << WGM12) | (1 << CS12) | (1 << CS10);     // FAST PWM 8 BIT, prescaler 1024
 }
 
 void PWM_Init()
