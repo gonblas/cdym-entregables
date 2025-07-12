@@ -5,7 +5,7 @@
 #define BLUE_OCR OCR1A
 #define PWM_OFF PORTB &= ~(1 << PIN_RED)
 #define PWM_ON PORTB |= (1 << PIN_RED)
-
+#define CALC_OPACITY(color_component, adc_value) (255 - ((255 - (color_component)) * (adc_value)) / 255)
 RGB_t cur_color = {0, 0, 0};
 uint8_t red = 0;
 
@@ -31,9 +31,10 @@ void PWM_Set_New_Color(RGB_t color)
 
 void PWM_Update_Opacity(uint8_t adc_value)
 {
-  red = 255 - ((255 - cur_color.red) * adc_value) / 255;
-  uint8_t green = 255 - ((255 - cur_color.green) * adc_value) / 255;
-  uint8_t blue = 255 - ((255 - cur_color.blue) * adc_value) / 255;
+
+  red = CALC_OPACITY(cur_color.red, adc_value);
+  uint8_t green = CALC_OPACITY(cur_color.green, adc_value);
+  uint8_t blue = CALC_OPACITY(cur_color.blue, adc_value);
   GREEN_OCR = green;
   BLUE_OCR = blue;
 }

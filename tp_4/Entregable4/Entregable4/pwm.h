@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include "color.h"
 
-void TIMER1_Init();
-
 void PWM_Init();
 
 void PWM_Set_New_Color(RGB_t color);
