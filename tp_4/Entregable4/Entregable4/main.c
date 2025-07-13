@@ -22,27 +22,30 @@ volatile uint8_t cmd_index;
 volatile uint8_t COMMAND_READY;
 volatile uint8_t NEW_CHAR_RECEIVED;
 volatile uint8_t NEW_CHAR_SENT;
-uint8_t adc_value;
+uint8_t opacity;
 
 uint8_t color_index = 0;
-uint8_t cmd= 0;
+uint8_t cmd = 0;
 
 void handle_new_color()
 {
     cmd = command_buffer[cmd_index];
-    if ((cmd >= '1') && (cmd <= '8'))
+    uint8_t is_digit = command_buffer[cmd_index + 1] == '\0';
+    if (is_digit && (cmd >= '1') && (cmd <= '8'))
+    {
         color_index = cmd - '1';
+        RGB_t new_color = colors_vec[color_index];
+        PWM_Set_New_Color(new_color);
+    }
     else
-        SerialPort_Buffered_Send_String("Comando invalido.\r\n");
+        SerialPort_Buffered_Send_String("Comando invalido. Ingrese un digito entre 1 y 8.\r\n");
 
-    RGB_t new_color = colors_vec[color_index];
-    PWM_Set_New_Color(new_color);
     COMMAND_READY = 0;
 }
 
 void print_options()
 {
-    uint8_t message[] = "Bienvenido\r\Ingrese el color deseado:\r\n - RED : 1\r\n - GREEN : 2\r\n - BLUE : 3\r\n - CIAN : 4\r\n - YELLOW : 5\r\n - MAGENTA : 6\r\n - WHITE : 7\r\n - BLACK : 8\r\n";
+    uint8_t message[] = "Bienvenido\r\Ingrese el color deseado:\r\n - RED: 1\r\n - GREEN: 2\r\n - BLUE: 3\r\n - CIAN: 4\r\n - YELLOW: 5\r\n - MAGENTA: 6\r\n - WHITE: 7\r\n - BLACK: 8\r\n";
     SerialPort_Buffered_Send_String(message);
 }
 
@@ -66,8 +69,8 @@ int main(void)
         if (COMMAND_READY)
             handle_new_color();
 
-        adc_value = ADC_Get_Value();
-        PWM_Update_Opacity(adc_value);
+        opacity = ADC_Get_Value();
+        PWM_Update_Opacity(opacity);
         PWM_Update_Red();
     }
 }
