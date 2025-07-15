@@ -5,7 +5,8 @@
 #define BLUE_OCR OCR1A
 #define PWM_OFF PORTB &= ~(1 << PIN_RED)
 #define PWM_ON PORTB |= (1 << PIN_RED)
-#define CALC_OPACITY(color_component, adc_value) (255 - ((255 - (color_component)) * (adc_value)) / 255)
+#define TOP 255
+#define CALC_OPACITY(color_component, adc_value) (TOP - ((TOP - (color_component)) * (adc_value)) / TOP)
 RGB_t cur_color = {0, 0, 0};
 uint8_t red = 0;
 
@@ -13,7 +14,7 @@ uint8_t red = 0;
 void TIMER1_Init()
 {
   TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM10); // SETEAMOS OC1A y OC1B en modo FAST PWM 8 BIT NO INVERTIDO
-  TCCR1B = (1 << WGM12) | (1 << CS12) | (1 << CS10);     // FAST PWM 8 BIT, prescaler 1024
+  TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10);     // FAST PWM 8 BIT, prescaler 64
 }
 
 void PWM_Init()
